@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Upload, X } from "lucide-react";
 import { createProject } from "@/lib/api";
 
 export default function NewProjectPage() {
@@ -11,9 +11,11 @@ export default function NewProjectPage() {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState({
-    title: "", slug: "", description: "", content: "",
+    title: "", slug: "", description: "", content: "", image: "",
     category: "Full Stack", technologies: "", liveUrl: "", githubUrl: "", featured: false,
   });
 
@@ -31,13 +33,31 @@ export default function NewProjectPage() {
     setForm({ ...form, title: value, slug: generateSlug(value) });
   }
 
+  function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setImagePreview(dataUrl);
+      setForm({ ...form, image: dataUrl });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleRemoveImage() {
+    setImagePreview(null);
+    setForm({ ...form, image: "" });
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true); setError("");
     try {
       await createProject({ ...form, technologies: form.technologies.split(",").map((t) => t.trim()).filter(Boolean) }, token!);
       router.push("/admin");
-    } catch { setError("Failed to create project"); }
+    } catch (e: unknown) { setError(e instanceof Error ? e.message : "Failed to create project"); }
     finally { setLoading(false); }
   }
 
@@ -90,6 +110,26 @@ export default function NewProjectPage() {
               <input type="text" value={form.technologies} onChange={(e) => setForm({ ...form, technologies: e.target.value })}
                 className="w-full px-4 py-3 rounded bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)]" placeholder="React, Node.js" />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2 text-[var(--text-primary)]">Image</label>
+            {imagePreview ? (
+              <div className="relative rounded overflow-hidden bg-[var(--bg-primary)] border border-[var(--border)]">
+                <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover" />
+                <button type="button" onClick={handleRemoveImage}
+                  className="absolute top-2 right-2 p-1.5 rounded bg-black/50 text-white hover:bg-black/70 transition-colors">
+                  <X size={14} />
+                </button>
+              </div>
+            ) : (
+              <button type="button" onClick={() => fileInputRef.current?.click()}
+                className="w-full h-32 rounded bg-[var(--bg-primary)] border-2 border-dashed border-[var(--border)] hover:border-[var(--accent)] transition-colors flex flex-col items-center justify-center gap-2 cursor-pointer">
+                <Upload size={20} className="text-[var(--text-secondary)]" />
+                <span className="text-sm text-[var(--text-secondary)]">Click to upload image</span>
+              </button>
+            )}
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Plus, Edit3, Trash2, LogOut } from "lucide-react";
+import { Plus, Edit3, Trash2, LogOut, Code2, ExternalLink } from "lucide-react";
 import { getProjects, deleteProject } from "@/lib/api";
 
 interface Project {
@@ -52,6 +52,14 @@ export default function AdminDashboard() {
             <p className="text-[var(--text-secondary)] text-sm mt-1">Welcome back, {username}</p>
           </div>
           <div className="flex items-center gap-3">
+            <Link href="/"
+              className="text-sm font-[family-name:var(--font-mono)] text-[var(--text-secondary)] border border-[var(--border)] px-5 py-2.5 rounded hover:text-[var(--accent)] hover:border-[var(--accent)] transition-all inline-flex items-center gap-2">
+              <ExternalLink size={14} /> Back to Site
+            </Link>
+            <Link href="/admin/skills"
+              className="text-sm font-[family-name:var(--font-mono)] text-[var(--text-secondary)] border border-[var(--border)] px-5 py-2.5 rounded hover:text-[var(--accent)] hover:border-[var(--accent)] transition-all inline-flex items-center gap-2">
+              <Code2 size={14} /> Skills
+            </Link>
             <Link href="/admin/projects/new"
               className="text-sm font-[family-name:var(--font-mono)] text-[var(--accent)] border-2 border-[var(--accent)] px-5 py-2.5 rounded hover:bg-[var(--accent)]/10 transition-all inline-flex items-center gap-2">
               <Plus size={14} /> New Project

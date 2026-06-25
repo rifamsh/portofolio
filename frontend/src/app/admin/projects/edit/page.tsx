@@ -1,9 +1,9 @@
 "use client";
 
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Upload, X } from "lucide-react";
 import { updateProject, getProject } from "@/lib/api";
 
 function EditProjectForm() {
@@ -16,9 +16,11 @@ function EditProjectForm() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState({
-    title: "", slug: "", description: "", content: "",
+    title: "", slug: "", description: "", content: "", image: "",
     category: "Full Stack", technologies: "", liveUrl: "", githubUrl: "", featured: false,
   });
 
@@ -35,9 +37,10 @@ function EditProjectForm() {
       if (!slug) return;
       const project = await getProject(slug);
       setProjectId(project.id);
+      if (project.image) setImagePreview(project.image);
       setForm({
         title: project.title, slug: project.slug, description: project.description,
-        content: project.content || "", category: project.category || "Full Stack",
+        content: project.content || "", image: project.image || "", category: project.category || "Full Stack",
         technologies: project.technologies.join(", "), liveUrl: project.liveUrl || "",
         githubUrl: project.githubUrl || "", featured: project.featured,
       });
@@ -47,6 +50,24 @@ function EditProjectForm() {
 
   function generateSlug(title: string) {
     return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  }
+
+  function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setImagePreview(dataUrl);
+      setForm({ ...form, image: dataUrl });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleRemoveImage() {
+    setImagePreview(null);
+    setForm({ ...form, image: "" });
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
   function handleTitleChange(value: string) {
@@ -60,7 +81,7 @@ function EditProjectForm() {
     try {
       await updateProject(projectId, { ...form, technologies: form.technologies.split(",").map((t) => t.trim()).filter(Boolean) }, token!);
       router.push("/admin");
-    } catch { setError("Failed to update project"); }
+    } catch (e: unknown) { setError(e instanceof Error ? e.message : "Failed to update project"); }
     finally { setSaving(false); }
   }
 
@@ -117,6 +138,26 @@ function EditProjectForm() {
               <input type="text" value={form.technologies} onChange={(e) => setForm({ ...form, technologies: e.target.value })}
                 className="w-full px-4 py-3 rounded bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)]" placeholder="React, Node.js" />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2 text-[var(--text-primary)]">Image</label>
+            {imagePreview ? (
+              <div className="relative rounded overflow-hidden bg-[var(--bg-primary)] border border-[var(--border)]">
+                <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover" />
+                <button type="button" onClick={handleRemoveImage}
+                  className="absolute top-2 right-2 p-1.5 rounded bg-black/50 text-white hover:bg-black/70 transition-colors">
+                  <X size={14} />
+                </button>
+              </div>
+            ) : (
+              <button type="button" onClick={() => fileInputRef.current?.click()}
+                className="w-full h-32 rounded bg-[var(--bg-primary)] border-2 border-dashed border-[var(--border)] hover:border-[var(--accent)] transition-colors flex flex-col items-center justify-center gap-2 cursor-pointer">
+                <Upload size={20} className="text-[var(--text-secondary)]" />
+                <span className="text-sm text-[var(--text-secondary)]">Click to upload image</span>
+              </button>
+            )}
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">

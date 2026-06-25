@@ -1,22 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import ProjectCard from "@/components/ProjectCard";
+import { getProjects } from "@/lib/api";
 
-const allProjects = [
-  { id: 1, title: "E-Commerce Platform", slug: "e-commerce-platform", description: "Platform belanja online dengan fitur real-time inventory management dan payment gateway terintegrasi.", image: null, technologies: ["React", "Node.js", "PostgreSQL", "Tailwind CSS"], category: "Full Stack", featured: true },
-  { id: 2, title: "Task Management App", slug: "task-management-app", description: "Aplikasi manajemen tugas kolaboratif dengan drag-and-drop interface dan real-time updates.", image: null, technologies: ["Next.js", "TypeScript", "Prisma", "WebSocket"], category: "Full Stack", featured: true },
-  { id: 3, title: "Weather Dashboard", slug: "weather-dashboard", description: "Dashboard cuaca interaktif dengan visualisasi data dan forecast 7 hari.", image: null, technologies: ["React", "Chart.js", "Tailwind CSS", "REST API"], category: "Frontend", featured: false },
-  { id: 4, title: "API Gateway Service", slug: "api-gateway-service", description: "Microservice API gateway dengan rate limiting, authentication, dan request logging.", image: null, technologies: ["Node.js", "Redis", "Docker", "TypeScript"], category: "Backend", featured: false },
-  { id: 5, title: "Personal Blog Template", slug: "personal-blog-template", description: "Template blog modern dengan MDX support, dark mode, dan SEO optimization.", image: null, technologies: ["Next.js", "MDX", "Tailwind CSS", "TypeScript"], category: "Frontend", featured: false },
-  { id: 6, title: "CI/CD Pipeline Tool", slug: "cicd-pipeline-tool", description: "Automated deployment pipeline dengan GitHub Actions, Docker, dan monitoring.", image: null, technologies: ["Docker", "GitHub Actions", "AWS", "Bash"], category: "DevOps", featured: false },
-];
+interface Project {
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  image: string | null;
+  technologies: string[];
+  category: string | null;
+  featured: boolean;
+}
 
 const categories = ["All", "Full Stack", "Frontend", "Backend", "DevOps"];
 
 export default function ProjectsPage() {
+  const [allProjects, setAllProjects] = useState<Project[]>([]);
   const [activeCategory, setActiveCategory] = useState("All");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getProjects()
+      .then((data) => setAllProjects(data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
   const filteredProjects =
     activeCategory === "All"
@@ -55,7 +67,11 @@ export default function ProjectsPage() {
           ))}
         </div>
 
-        {filteredProjects.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="animate-spin w-8 h-8 border-2 border-[var(--accent)] border-t-transparent rounded-full" />
+          </div>
+        ) : filteredProjects.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-[var(--text-secondary)]">No projects found in this category.</p>
           </div>

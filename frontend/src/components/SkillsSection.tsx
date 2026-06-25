@@ -1,10 +1,17 @@
-const skills = [
-  "JavaScript", "TypeScript", "React", "Next.js",
-  "Node.js", "Express", "PostgreSQL", "Prisma",
-  "Tailwind CSS", "Git", "Docker", "REST APIs",
-];
+"use client";
+
+import { useEffect, useState } from "react";
+import { getSkills } from "@/lib/api";
 
 export default function SkillsSection() {
+  const [skills, setSkills] = useState<string[]>([]);
+
+  useEffect(() => {
+    getSkills()
+      .then((data) => setSkills(data.map((s) => s.name)))
+      .catch(() => {});
+  }, []);
+
   return (
     <section id="experience" className="px-6 py-20">
       <div className="max-w-6xl mx-auto">

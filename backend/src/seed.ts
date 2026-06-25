@@ -63,6 +63,22 @@ async function main() {
   }
 
   console.log('Sample projects created');
+
+  const skillNames = [
+    'JavaScript', 'TypeScript', 'React', 'Next.js', 'Node.js',
+    'Express', 'PostgreSQL', 'Prisma', 'Tailwind CSS', 'Git',
+    'Docker', 'REST APIs',
+  ];
+
+  for (const name of skillNames) {
+    await prisma.skill.upsert({
+      where: { name },
+      update: {},
+      create: { name },
+    });
+  }
+
+  console.log('Default skills created');
 }
 
 main()

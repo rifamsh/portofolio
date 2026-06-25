@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
@@ -14,6 +14,11 @@ const navLinks = [
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    setIsAdmin(!!localStorage.getItem("admin_token"));
+  }, []);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50" style={{ backgroundColor: "var(--nav-bg)", backdropFilter: "blur(10px)" }}>
@@ -37,6 +42,14 @@ export default function Navbar() {
             </Link>
           ))}
           <ThemeToggle />
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="text-sm font-[family-name:var(--font-mono)] text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors"
+            >
+              Admin
+            </Link>
+          )}
           <Link
             href="/about"
             className="text-sm font-[family-name:var(--font-mono)] text-[var(--accent)] border border-[var(--accent)] px-4 py-2 rounded hover:bg-[var(--accent)]/10 transition-all"
@@ -71,6 +84,15 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            {isAdmin && (
+              <Link
+                href="/admin"
+                onClick={() => setMobileOpen(false)}
+                className="text-sm font-[family-name:var(--font-mono)] text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors"
+              >
+                Admin
+              </Link>
+            )}
             <Link
               href="/about"
               onClick={() => setMobileOpen(false)}

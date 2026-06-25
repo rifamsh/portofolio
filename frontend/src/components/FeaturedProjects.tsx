@@ -1,30 +1,30 @@
-import Link from "next/link";
+"use client";
 
-const featuredProjects = [
-  {
-    title: "E-Commerce Platform",
-    slug: "e-commerce-platform",
-    description: "Platform belanja online dengan fitur real-time inventory management dan payment gateway terintegrasi.",
-    technologies: ["React", "Node.js", "PostgreSQL", "Tailwind CSS"],
-    category: "Full Stack",
-  },
-  {
-    title: "Task Management App",
-    slug: "task-management-app",
-    description: "Aplikasi manajemen tugas kolaboratif dengan drag-and-drop interface dan real-time updates.",
-    technologies: ["Next.js", "TypeScript", "Prisma", "WebSocket"],
-    category: "Full Stack",
-  },
-  {
-    title: "Weather Dashboard",
-    slug: "weather-dashboard",
-    description: "Dashboard cuaca interaktif dengan visualisasi data dan forecast 7 hari.",
-    technologies: ["React", "Chart.js", "Tailwind CSS", "REST API"],
-    category: "Frontend",
-  },
-];
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { getProjects } from "@/lib/api";
+
+interface Project {
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  technologies: string[];
+  category: string | null;
+  featured: boolean;
+}
 
 export default function FeaturedProjects() {
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  useEffect(() => {
+    getProjects({ featured: true })
+      .then((data) => setProjects(data))
+      .catch(() => {});
+  }, []);
+
+  if (projects.length === 0) return null;
+
   return (
     <section id="work" className="px-6 py-20">
       <div className="max-w-6xl mx-auto">
@@ -34,7 +34,7 @@ export default function FeaturedProjects() {
         </h2>
 
         <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {featuredProjects.map((project) => (
+          {projects.map((project) => (
             <Link
               key={project.slug}
               href={`/projects/${project.slug}`}

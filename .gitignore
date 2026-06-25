@@ -47,3 +47,4 @@ backend/prisma/migrations/
 # Dokumentasi requirement (tidak perlu di-push)
 design.md
 prd.md
+CUSTOMIZE.md

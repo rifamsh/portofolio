@@ -84,6 +84,40 @@ export async function login(username: string, password: string): Promise<{ token
   return res.json();
 }
 
+export interface Skill {
+  id: number;
+  name: string;
+}
+
+export async function getSkills(): Promise<Skill[]> {
+  const res = await fetch(`${API_URL}/skills`);
+  if (!res.ok) throw new Error("Failed to fetch skills");
+  return res.json();
+}
+
+export async function createSkill(name: string, token: string): Promise<Skill> {
+  const res = await fetch(`${API_URL}/skills`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ name }),
+  });
+  if (!res.ok) throw new Error("Failed to create skill");
+  return res.json();
+}
+
+export async function deleteSkill(id: number, token: string): Promise<void> {
+  const res = await fetch(`${API_URL}/skills/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!res.ok) throw new Error("Failed to delete skill");
+}
+
 export const categories = [
   "All",
   "Full Stack",

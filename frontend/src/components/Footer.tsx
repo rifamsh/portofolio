@@ -20,6 +20,8 @@ export default function Footer() {
 
 <p className="mt-8 text-xs font-[family-name:var(--font-mono)] text-[var(--text-secondary)] opacity-60">
   © {new Date().getFullYear()} Maulana Arif H.S.
+  <span className="mx-2">·</span>
+  <a href="/admin/login" className="hover:text-[var(--accent)] transition-colors">Admin</a>
 </p>
       </div>
     </footer>

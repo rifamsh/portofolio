@@ -1,57 +1,43 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { getProject } from "@/lib/api";
 
-const projects = [
-  {
-    id: 1, title: "E-Commerce Platform", slug: "e-commerce-platform",
-    description: "Platform belanja online dengan fitur real-time inventory management dan payment gateway terintegrasi.",
-    content: "Full-stack e-commerce platform built with React, Node.js, and PostgreSQL.\n\nThis project demonstrates my ability to build complex full-stack applications with modern web technologies. The platform handles thousands of concurrent users with real-time inventory updates through WebSocket connections.",
-    technologies: ["React", "Node.js", "PostgreSQL", "Tailwind CSS", "WebSocket", "Redis"],
-    category: "Full Stack", liveUrl: "#", githubUrl: "#", featured: true,
-  },
-  {
-    id: 2, title: "Task Management App", slug: "task-management-app",
-    description: "Aplikasi manajemen tugas kolaboratif dengan drag-and-drop interface dan real-time updates.",
-    content: "Collaborative task management application with real-time updates using WebSocket.\n\nThe app supports multiple workspaces, role-based access control, and integrates with popular tools like Slack and GitHub.",
-    technologies: ["Next.js", "TypeScript", "Prisma", "WebSocket", "PostgreSQL", "Tailwind CSS"],
-    category: "Full Stack", liveUrl: "#", githubUrl: "#", featured: true,
-  },
-  {
-    id: 3, title: "Weather Dashboard", slug: "weather-dashboard",
-    description: "Dashboard cuaca interaktif dengan visualisasi data dan forecast 7 hari.",
-    content: "Interactive weather dashboard consuming OpenWeatherMap API. Features 7-day forecast, interactive charts, and location-based weather.",
-    technologies: ["React", "Chart.js", "Tailwind CSS", "REST API"],
-    category: "Frontend", liveUrl: "#", githubUrl: "#", featured: false,
-  },
-  {
-    id: 4, title: "API Gateway Service", slug: "api-gateway-service",
-    description: "Microservice API gateway dengan rate limiting, authentication, dan request logging.",
-    content: "A robust API gateway built for microservices architecture with rate limiting using Redis and JWT-based authentication.",
-    technologies: ["Node.js", "Redis", "Docker", "TypeScript", "Express"],
-    category: "Backend", liveUrl: "#", githubUrl: "#", featured: false,
-  },
-  {
-    id: 5, title: "Personal Blog Template", slug: "personal-blog-template",
-    description: "Template blog modern dengan MDX support, dark mode, dan SEO optimization.",
-    content: "A modern blog template with MDX support, automatic dark mode, full SEO optimization, and blazing fast page loads.",
-    technologies: ["Next.js", "MDX", "Tailwind CSS", "TypeScript", "ISR"],
-    category: "Frontend", liveUrl: "#", githubUrl: "#", featured: false,
-  },
-  {
-    id: 6, title: "CI/CD Pipeline Tool", slug: "cicd-pipeline-tool",
-    description: "Automated deployment pipeline dengan GitHub Actions, Docker, dan monitoring.",
-    content: "End-to-end CI/CD pipeline automation with GitHub Actions, Docker containerization, and AWS ECS deployment.",
-    technologies: ["Docker", "GitHub Actions", "AWS", "Bash", "Terraform"],
-    category: "DevOps", liveUrl: "#", githubUrl: "#", featured: false,
-  },
-];
+interface Project {
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  content: string | null;
+  technologies: string[];
+  category: string | null;
+  liveUrl: string | null;
+  githubUrl: string | null;
+  featured: boolean;
+}
 
 export default function ProjectDetailPage() {
   const { slug } = useParams<{ slug: string }>();
-  const project = projects.find((p) => p.slug === slug);
+  const [project, setProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!slug) return;
+    getProject(slug)
+      .then((data) => setProject(data))
+      .catch(() => setProject(null))
+      .finally(() => setLoading(false));
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen px-6 pt-32 pb-20 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-2 border-[var(--accent)] border-t-transparent rounded-full" />
+      </div>
+    );
+  }
 
   if (!project) {
     return (
@@ -80,11 +66,31 @@ export default function ProjectDetailPage() {
           </Link>
         </div>
 
-        <div className="aspect-video rounded bg-[var(--bg-secondary)] flex items-center justify-center mb-10">
-          <span className="text-8xl font-bold text-[var(--text-secondary)] opacity-20">
-            {project.title.charAt(0)}
-          </span>
-        </div>
+        {project.image ? (
+          <div className="rounded overflow-hidden mb-8 max-h-80">
+            <img src={project.image} alt={project.title} className="w-full h-full object-cover" />
+          </div>
+        ) : (
+          <div className="rounded bg-gradient-to-br from-[var(--bg-secondary)] to-[var(--bg-tertiary)] flex items-center justify-center mb-8 h-48 overflow-hidden relative">
+            <div className="absolute inset-0 opacity-5">
+              <div className="w-full h-full" style={{
+                backgroundImage: `radial-gradient(circle at 25% 25%, var(--accent) 1px, transparent 1px),
+                                  radial-gradient(circle at 75% 75%, var(--accent) 1px, transparent 1px)`,
+                backgroundSize: '40px 40px',
+              }} />
+            </div>
+            <div className="relative flex flex-col items-center gap-2">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--accent)] opacity-40">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                <line x1="8" y1="21" x2="16" y2="21" />
+                <line x1="12" y1="17" x2="12" y2="21" />
+              </svg>
+              <span className="text-xs font-[family-name:var(--font-mono)] text-[var(--text-secondary)] opacity-30">
+                {project.category}
+              </span>
+            </div>
+          </div>
+        )}
 
         <div className="flex items-center gap-3 mb-4">
           <span className="text-xs font-[family-name:var(--font-mono)] text-[var(--accent)] bg-[var(--accent)]/10 px-3 py-1 rounded">
@@ -112,14 +118,14 @@ export default function ProjectDetailPage() {
         </div>
 
         <div className="flex gap-4 mb-12">
-          {project.liveUrl && (
+          {project.liveUrl && project.liveUrl !== "#" && (
             <a href={project.liveUrl} target="_blank" rel="noopener noreferrer"
               className="text-sm font-[family-name:var(--font-mono)] text-[var(--accent)] border-2 border-[var(--accent)] px-6 py-3 rounded hover:bg-[var(--accent)]/10 transition-all"
             >
               Live Demo
             </a>
           )}
-          {project.githubUrl && (
+          {project.githubUrl && project.githubUrl !== "#" && (
             <a href={project.githubUrl} target="_blank" rel="noopener noreferrer"
               className="text-sm font-[family-name:var(--font-mono)] text-[var(--text-secondary)] border border-[var(--border)] px-6 py-3 rounded hover:text-[var(--accent)] hover:border-[var(--accent)] transition-all"
             >
@@ -128,12 +134,14 @@ export default function ProjectDetailPage() {
           )}
         </div>
 
-        <div className="border-t border-[var(--border)] pt-8">
-          <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">About This Project</h2>
-          {project.content?.split("\n\n").map((paragraph, i) => (
-            <p key={i} className="text-[var(--text-secondary)] leading-relaxed mb-4">{paragraph}</p>
-          ))}
-        </div>
+        {project.content && (
+          <div className="border-t border-[var(--border)] pt-8">
+            <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">About This Project</h2>
+            {project.content.split("\n\n").map((paragraph, i) => (
+              <p key={i} className="text-[var(--text-secondary)] leading-relaxed mb-4">{paragraph}</p>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
