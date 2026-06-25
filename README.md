@@ -17,11 +17,11 @@ Desain terinspirasi dari Brittany Chiang dengan tema dark/light dan aksen biru.
 
 ## Tech Stack
 
-| Frontend | Backend | Database |
-|---|---|---|
-| Next.js 16 | Express.js | MySQL |
-| Tailwind CSS | Prisma ORM | Railway |
-| TypeScript | JWT Auth | Vercel |
+| Frontend     | Backend    | Database |
+| ------------ | ---------- | -------- |
+| Next.js 16   | Express.js | MySQL    |
+| Tailwind CSS | Prisma ORM | Railway  |
+| TypeScript   | JWT Auth   | Vercel   |
 
 ## Struktur Project
 
@@ -74,21 +74,17 @@ Buka `http://localhost:3000`.
 
 ## Admin Panel
 
-| | |
-|---|---|
-| URL | `/admin/login` |
-| Username | `maulana` |
-| Password | `admin123` |
+|          |                |
+| -------- | -------------- |
+| URL      | `/admin/login` |
+| Username | `maulana`      |
+| Password | `admin123`     |
 
 ## Deploy
 
 - **Frontend** → [Vercel](https://vercel.com)
 - **Backend** → [Railway](https://railway.app)
 - **Database** → Railway MySQL / PlanetScale
-
-## Kustomisasi
-
-Lihat panduan lengkap di [CUSTOMIZE.md](CUSTOMIZE.md) atau baca komentar di file komponen.
 
 ## License
 
