@@ -1,7 +1,7 @@
 # Maulana Arif H.S — Portfolio
 
-![Website Screenshot](public/screenshot.png)
-
+![Website Screenshot](public/DarkMode.png)
+![Website Screenshot](public/LightMode.png)
 Portfolio website personal untuk Maulana Arif Hikmat Suci — Full Stack Developer.  
 Dibangun dengan Next.js, Tailwind CSS, Express.js, dan MySQL.  
 Desain terinspirasi dari Brittany Chiang dengan tema dark/light dan aksen biru.
